@@ -1,1 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Learning Stages with Sidebar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/codemirror.min.css">
+   
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column; /* Changed to column for nav on top */
+            height: 100vh;
+            margin: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between; /* Space between logo and menu */
+            align-items: center;
+            background-color: #1a1a1a; /* Background for nav */
+            padding: 10px 20px;
+            color: white;
+        }
+
+        .navbar h1 {
+            margin: 0; /* Remove margin for the logo */
+        }
+
+        .menu {
+            display: flex;
+            gap: 10px; /* Space between menu items */
+        }
+
+        .menu-item {
+    display: block;
+    padding: 10px 15px; /* Add some padding for better spacing */
+    color: white; /* White text */
+    text-align: center;
+    background-color: #1a1a1a; /* Black background */
+    border: 2px solid #27ae60; /* Green border */
+    border-radius: 8px; /* Rounded corners for a modern look */
+    text-decoration: none;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease; /* Smooth transitions */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Slight shadow for depth */
+}
+
+.menu-item:hover {
+    background-color: #27ae60; /* Green background on hover */
+    color: black; /* Black text on hover */
+    transform: scale(1.05); /* Slight zoom effect on hover */
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2); /* Increase shadow on hover for a pop-out effect */
+}
+
+        .submenu {
+            display: none; /* Hidden by default */
+            position: absolute;
+            background-color: #333; /* Dark background for submenu */
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 10; /* Ensures submenu is above other content */
+        }
+
+        .menu-item:hover .submenu {
+            display: block; /* Show submenu on hover */
+        }
+
+        /* Other Styles (No changes to the original styles) */
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        h1, h2, h3 {
+            margin-bottom: 16px;
+            color: #ffffff;
+        }
+
+        h1 {
+            font-size: 26px;
+        }
+
+        h2 {
+            font-size: 22px;
+        }
+
+        h3 {
+            font-size: 18px;
+        }
+
+        .left, .middle, .right {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow: auto;
+        }
+
+        .left {
+            flex: 0 0 25%;
+            background-color: #1a1a1a;
+            border-right: 2px solid #27ae60;
+        }
+
+        .middle {
+            flex: 0 0 50%;
+            background-color: #ffffff;
+            color: #333;
+        }
+
+        .right {
+            flex: 0 0 25%;
+            background-color: #1a1a1a;
+            border-left: 2px solid #27ae60;
+            color: white;
+			
+        }
+
+        .inside {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100vh;
+        }
+
+        .code {
+            height: 60%;
+            background-color: #333;
+            color: #ffffff;
+            border: 1px solid #27ae60;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow: auto;
+        }
+
+        .out {
+            height: 40%;
+            background-color: #444;
+            color: #ffffff;
+            border: 1px solid #27ae60;
+            padding: 20px;
+            border-radius: 8px;
+            overflow: auto;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-right: 5px;
+        }
+
+        button:hover {
+            background-color: #1e8449;
+        }
+
+        .button-row {
+            display: flex;
+            flex-direction: row;
+            margin-top: 10px;
+        }
+
+        .CodeMirror {
+            width: 100%;
+            height: 60%;
+            font-size: 16px;
+            border: 1px solid #27ae60;
+            border-radius: 4px;
+        }
+
+        pre {
+            width: 100%;
+            height: 100%;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-y: auto;
+            font-family: monospace;
+        }
+
+        #timer {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #27ae60;
+        }
+
+        #note {
+            margin-top: 10px;
+            color: #e74c3c;
+            font-style: italic;
+        }
+
+        .solution {
+            display: none;
+            margin-top: 10px;
+            padding: 15px;
+            border: 1px solid #27ae60;
+            border-radius: 8px;
+            background-color: #333;
+            color: #ffffff;
+        }
+
+        .sidebar h2 {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .stage-list {
+            list-style-type: none;
+            padding-right: 100px;
+        }
+
+        .stage-list li {
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            color: #27ae60; /* Green list items */
+            background-color: #1a1a1a; /* Black background */
+            border: 1px solid #27ae60; /* Green border */
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .stage-list li:hover {
+            background-color: #27ae60;
+            color: white;
+        }
+
+        .stage-list li.active {
+            background-color: #27ae60;
+            color: white;
+        }
+
+        @media screen and (max-width: 768px) {
+            .left, .middle, .right {
+                flex: 1;
+                padding: 10px;
+            }
+
+            .inside {
+                height: auto;
+            }
+
+            .code, .out {
+                height: auto;
+                margin-bottom: 15px;
+            }
+
+            button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .button-row {
+                flex-direction: column;
+            }
+        }
+
+        .question {
+            white-space: pre;
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+        .extend {
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+    </style>
+
+</head>
+<body>
+
+    <div class="navbar">
+        <h1>Showmik Sir </h1>
+        <div class="menu">
+            <div class="menu-item">Basic
+                
+            </div>
+            <div class="menu-item">Intermediate
+                
+            </div>
+            <div class="menu-item">Advanced
+              
+            </div>
+        </div>
+    </div>
+
+   <div class="container">
+        <div class="left">
+            <h1>Python Learning Stages</h1>
+            <div id="timer">Time: <span id="timeDisplay">00:00</span></div>
+            <div class="question" id="question"></div>
+			<div id="solution" class="solution"><p>solution:</b></p></div>
+			<div class="extend" id="extend"></div>
+            
+            <div id="solution" class="solution"></div>
+        </div>
+
+        <div class="middle">
+		<div class="inside">
+		<div class="code">
+		  <h2>Write code below...</h2>
+			<textarea id="pythonCode" placeholder="Enter Python code here..."></textarea>
+            <div class="button-row">
+                <button id="runButton">Run Code</button>
+                <button id="solutionButton">Show/Hide Solution</button>
+                <button id="previousButton">Previous Stage</button>
+                <button id="nextButton">Next Stage</button>
+            </div>
+			<div id="note"></div>
+			</div>
+			<div class="out">
+            
+            <h2>Output</h2>
+            <pre id="output"></pre>
+            <div id="result" class="result"></div>
+			</div>
+			</div>
+        </div>
+		
+
+        <div class="right" id="sidebar">
+            <div class="sidebar">
+                <h2>Stages</h2>
+                <ul class="stage-list" id="stageList"></ul>
+            </div>
+        </div>
+
+        <button id="toggleSidebar">☰</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/addon/edit/closetag.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/addon/edit/matchbrackets.min.js"></script>
+
+    <script>
+var stages = [
+    // Section 1: Basic Input/Output and Arithmetic Operations
+    {
+        question: "Stage 1: Sum of Two Numbers",
+        correctOutput: "You are required to input two numbers and calculate their sum using the formula:\nSum = number1 + number2\nOutput\nEnter first number: 8\nEnter second number: 12\nSum: 20",
+        solution: "num1 = int(input('Enter first number: '))\nnum2 = int(input('Enter second number: '))\nprint('Sum: ' + str(num1 + num2))",
+        note: "Ensure that inputs are integers and use the correct arithmetic operation to display the sum."
+    },
+    {
+        question: "Stage 2: Calculate the Difference, Product, and Quotient",
+        correctOutput: "Input two numbers to compute their difference, product, and quotient using the following formulas:\nDifference = number1 - number2\nProduct = number1 * number2\nQuotient = number1 // number2 (integer division)\nOutput\nEnter first number: 20\nEnter second number: 4\nDifference: 16\nProduct: 80\nQuotient: 5",
+        solution: "num1 = int(input('Enter first number: '))\nnum2 = int(input('Enter second number: '))\nprint('Difference: ' + str(num1 - num2))\nprint('Product: ' + str(num1 * num2))\nprint('Quotient: ' + str(num1 // num2))",
+        note: "Use integer division for quotient, and check that both inputs are integers."
+    },
+    {
+        question: "Stage 3: Calculate the Area and Perimeter of a Rectangle",
+        correctOutput: "Input the length and width of a rectangle to calculate its area and perimeter using these formulas:\nArea = length × width\nPerimeter = 2 × (length + width)\nOutput\nEnter length: 15\nEnter width: 10\nArea: 150\nPerimeter: 50",
+        solution: "length = float(input('Enter the length of the rectangle: '))\nwidth = float(input('Enter the width of the rectangle: '))\narea = length * width\nperimeter = 2 * (length + width)\nprint('Area: ' + str(area))\nprint('Perimeter: ' + str(perimeter))",
+        note: "Ensure inputs are floats and use both area and perimeter formulas."
+    },
+    {
+        question: "Stage 4: Average of Three Numbers",
+        correctOutput: "Input three numbers and calculate their average using the formula:\nAverage = (number1 + number2 + number3) / 3\nOutput\nEnter first number: 14\nEnter second number: 21\nEnter third number: 35\nAverage: 23.33",
+        solution: "num1 = float(input('Enter first number: '))\nnum2 = float(input('Enter second number: '))\nnum3 = float(input('Enter third number: '))\naverage = (num1 + num2 + num3) / 3\nprint('Average: ' + str(round(average, 2)))",
+        note: "Ensure correct rounding for the average calculation to two decimal places."
+    },
+    {
+        question: "Stage 5: Power Calculation (Exponentiation)",
+        correctOutput: "Input a base number and an exponent to calculate the result using the formula:\nResult = base^exponent\nOutput\nEnter base: 3\nEnter exponent: 4\nResult: 81",
+        solution: "base = int(input('Enter the base number: '))\nexponent = int(input('Enter the exponent: '))\nresult = base ** exponent\nprint('Result: ' + str(result))",
+        note: "Ensure correct usage of the exponentiation operator (`**`) for the calculation."
+    },
+    {
+        question: "Stage 6: Time Conversion (Seconds to Hours, Minutes, and Seconds)",
+        correctOutput: "Input time in seconds and convert it into hours, minutes, and remaining seconds using these formulas:\nHours = total_seconds // 3600\nRemaining minutes = (total_seconds % 3600) // 60\nRemaining seconds = total_seconds % 60\nOutput\nEnter time in seconds: 3665\n1 hours, 1 minutes, 5 seconds",
+        solution: "seconds = int(input('Enter the time in seconds: '))\nhours = seconds // 3600\nremaining_seconds = seconds % 3600\nminutes = remaining_seconds // 60\nseconds = remaining_seconds % 60\nprint(f'{hours} hours, {minutes} minutes, {seconds} seconds')",
+        note: "Ensure that the time is broken down into hours, minutes, and seconds accurately."
+    },
+    {
+        question: "Stage 7: Temperature Conversion (Celsius to Fahrenheit)",
+        correctOutput: "Input a temperature in Celsius and convert it to Fahrenheit using the formula:\nFahrenheit = (Celsius × 9/5) + 32\nOutput\nEnter temperature in Celsius: 25\nTemperature in Fahrenheit: 77.0",
+        solution: "celsius = float(input('Enter temperature in Celsius: '))\nfahrenheit = (celsius * 9/5) + 32\nprint('Temperature in Fahrenheit: ' + str(fahrenheit))",
+        note: "Ensure the correct application of the temperature conversion formula."
+    },
+    {
+        question: "Stage 8: Simple Interest Calculation",
+        correctOutput: "Input principal, rate, and time to calculate simple interest using the formula:\nSimple Interest = (P × R × T) / 100\nOutput\nEnter principal: 2000\nEnter rate: 3\nEnter time: 5\nSimple Interest: 300.0",
+        solution: "P = float(input('Enter the principal amount: '))\nR = float(input('Enter the interest rate: '))\nT = float(input('Enter the time period in years: '))\nSI = (P * R * T) / 100\nprint('Simple Interest: ' + str(SI))",
+        note: "Ensure inputs are floats and the correct application of the simple interest formula."
+    },
+    {
+        question: "Stage 9: Calculate BMI (Body Mass Index)",
+        correctOutput: "Input weight in kilograms and height in meters to calculate BMI using the formula:\nBMI = weight / (height × height)\nOutput\nEnter weight: 75\nEnter height: 1.8\nYour BMI is: 23.15",
+        solution: "weight = float(input('Enter your weight in kg: '))\nheight = float(input('Enter your height in meters: '))\nBMI = weight / (height ** 2)\nprint('Your BMI is: ' + str(round(BMI, 2)))",
+        note: "Ensure the BMI calculation is correct with proper rounding to two decimal places."
+    },
+    {
+        question: "Stage 10: Speed Calculation",
+        correctOutput: "Input distance in kilometers and time in hours, and calculate the speed using the formula:\nSpeed = Distance / Time\nOutput\nEnter distance: 150\nEnter time: 3\nSpeed: 50.0 km/h",
+        solution: "distance = float(input('Enter distance in kilometers: '))\ntime = float(input('Enter time in hours: '))\nspeed = distance / time\nprint('Speed: ' + str(speed) + ' km/h')",
+        note: "Ensure correct division and proper display of speed in km/h."
+    },
+    
+    // Section 2: If-Else and Conditional Logic
+    {
+        question: "Stage 11: Check if a Number is Positive, Negative, or Zero",
+        correctOutput: "Input a number and determine if it's positive, negative, or zero:\nCondition: num > 0 → positive, num < 0 → negative, num == 0 → zero\nOutput\nEnter a number: -12\n-12 is negative.",
+        solution: "num = float(input('Enter a number: '))\nif num > 0:\n    print(str(num) + ' is positive.')\nelif num < 0:\n    print(str(num) + ' is negative.')\nelse:\n    print(str(num) + ' is zero.')",
+        note: "Handle all three conditions using if-elif-else structure."
+    },
+    {
+        question: "Stage 12: Determine Even or Odd and Check for a Specific Condition",
+        correctOutput: "Input a number and determine if it's even or odd, and print a special message if the number is greater than 100:\nCondition: num % 2 == 0 → even, else → odd\nAdditional condition: num > 100 → additional message\nOutput\nEnter a number: 105\n105 is odd.\nAnd it's greater than 100!",
+        solution: "num = int(input('Enter a number: '))\nif num % 2 == 0:\n    print(str(num) + ' is even.')\nelse:\n    print(str(num) + ' is odd.')\nif num > 100:\n    print('And it’s greater than 100!')",
+        note: "Add a conditional check for numbers greater than 100."
+    },
+    {
+        question: "Stage 13: Grade Calculation based on Marks",
+        correctOutput: "Input marks and determine the grade based on the following criteria:\nIf marks >= 90: A, >= 75: B, >= 50: C, else: F\nOutput\nEnter marks: 85\nGrade: B",
+        solution: "marks = int(input('Enter your marks: '))\nif marks >= 90:\n    print('Grade: A')\nelif marks >= 75:\n    print('Grade: B')\nelif marks >= 50:\n    print('Grade: C')\nelse:\n    print('Grade: F')",
+        note: "Ensure proper grading according to the specified criteria."
+    },
+    {
+        question: "Stage 14: Age Group Classification",
+        correctOutput: "Input your age and classify it into categories:\nChild (0-12), Teen (13-19), Adult (20-59), Senior (60+)\nOutput\nEnter your age: 25\nYou are classified as an Adult.",
+        solution: "age = int(input('Enter your age: '))\nif age >= 0 and age <= 12:\n    print('You are classified as a Child.')\nelif age >= 13 and age <= 19:\n    print('You are classified as a Teen.')\nelif age >= 20 and age <= 59:\n    print('You are classified as an Adult.')\nelse:\n    print('You are classified as a Senior.')",
+        note: "Ensure age classification covers all possible scenarios."
+    },
+    {
+        question: "Stage 15: Voting Eligibility Check",
+        correctOutput: "Input your age and determine if you are eligible to vote:\nEligibility: age >= 18\nOutput\nEnter your age: 17\nYou are not eligible to vote.",
+        solution: "age = int(input('Enter your age: '))\nif age >= 18:\n    print('You are eligible to vote.')\nelse:\n    print('You are not eligible to vote.')",
+        note: "Simple check for voting eligibility based on age."
+    },
+    
+    // Section 3: Logical and Relational Conditions
+    {
+    "question": "Stage 16: Health and Fitness Goal Tracker",
+    "correctOutput": "Input daily steps, water intake, and exercise duration to analyze overall health progress:\nFormula:\nHealth Status Classification:\n- Excellent: Daily Steps >= 10000, Water Intake >= 2L, Exercise Duration >= 30 mins\n- Good: Daily Steps >= 8000, Water Intake >= 1.5L, Exercise Duration >= 20 mins\n- Fair: Daily Steps >= 5000, Water Intake >= 1L, Exercise Duration >= 10 mins\n- Poor: Otherwise\nOutput\nEnter daily steps: 8000\nEnter water intake (liters): 2.5\nEnter exercise duration (minutes): 30\nOverall Health Status: Good\nFeedback: Keep up the good work! Consider increasing exercise duration to improve fitness levels.",
+    "solution": "daily_steps = int(input('Enter daily steps: '))\nwater_intake = float(input('Enter water intake (liters): '))\nexercise_duration = int(input('Enter exercise duration (minutes): '))\nif daily_steps < 0 or water_intake < 0 or exercise_duration < 0:\n    print('Invalid input. All values must be non-negative.')\nelif daily_steps >= 10000 and water_intake >= 2 and exercise_duration >= 30:\n    health_status = 'Excellent'\n    feedback = 'Outstanding commitment to your health!'\nelif daily_steps >= 8000 and water_intake >= 1.5 and exercise_duration >= 20:\n    health_status = 'Good'\n    feedback = 'Keep up the good work! Consider increasing exercise duration to improve fitness levels.'\nelif daily_steps >= 5000 and water_intake >= 1 and exercise_duration >= 10:\n    health_status = 'Fair'\n    feedback = 'You’re doing okay, but there’s room for improvement.'\nelse:\n    health_status = 'Poor'\n    feedback = 'Consider making healthier lifestyle choices.'\nprint('Overall Health Status:', health_status)\nprint('Feedback:', feedback)",
+    "note": "Ensure accurate evaluation of health and fitness goals based on user inputs and provide appropriate feedback."
+},
+    {
+    "question": "Stage 17: Loan Repayment Schedule Calculation",
+    "correctOutput": "Input loan amount, annual interest rate, and number of years to calculate monthly payments and total repayment:\nConditions:\n1. Loan amount, annual interest rate, and number of years must be non-negative.\n2. If any input is negative, the output will state 'All inputs must be non-negative.'\nFormula:\nMonthly Payment = (Loan Amount × Monthly Interest Rate) / (1 - (1 + Monthly Interest Rate) ^ -Number of Payments)\nTotal Repayment = Monthly Payment × Number of Payments\nOutput\nEnter loan amount: 5000\nEnter annual interest rate (%): 5\nEnter number of years: 3\nMonthly payment: 149.71\nTotal repayment: 5369.58.",
+    "solution": "loan_amount = float(input('Enter loan amount: '))\nannual_interest_rate = float(input('Enter annual interest rate (%): '))\nyears = int(input('Enter number of years: '))\nif loan_amount < 0 or annual_interest_rate < 0 or years < 0:\n    print('All inputs must be non-negative.')\nelse:\n    # Calculate monthly interest rate and number of payments\n    monthly_interest_rate = (annual_interest_rate / 100) / 12\n    num_payments = years * 12\n    # Calculate monthly payment and total repayment\n    monthly_payment = (loan_amount * monthly_interest_rate) / (1 - (1 + monthly_interest_rate) ** -num_payments)\n    total_repayment = monthly_payment * num_payments\n    print('Monthly payment:', round(monthly_payment, 2))\n    print('Total repayment:', round(total_repayment, 2))",
+    "note": "Ensure accurate calculations of monthly payments and total repayment based on loan parameters."
+},
+    {
+        "question": "Stage 18: Advanced Grade Classification with Comments",
+        "correctOutput": "Input a score and classify the grade with detailed feedback:\nFormula:\nGrade Classification:\nA: Score >= 90\nB: 80 <= Score < 90\nC: 70 <= Score < 80\nD: 60 <= Score < 70\nF: Score < 60\nOutput\nEnter score: 75\nGrade: C\nFeedback: Needs Improvement.",
+        "solution": "score = float(input('Enter score: '))\nif score >= 90:\n    grade = 'A'\n    feedback = 'Excellent!'\nelif score >= 80:\n    grade = 'B'\n    feedback = 'Good job!'\nelif score >= 70:\n    grade = 'C'\n    feedback = 'Needs Improvement.'\nelif score >= 60:\n    grade = 'D'\n    feedback = 'Barely passing.'\nelse:\n    grade = 'F'\n    feedback = 'Failing.'\nprint('Grade:', grade)\nprint('Feedback:', feedback)",
+        "note": "Ensure proper classification of grades based on score ranges and provide appropriate feedback."
+    },
+    {
+    "question": "Stage 19: Comprehensive Loan Eligibility Checker",
+    "correctOutput": "Input applicant's annual income, credit score, and debt-to-income ratio to determine loan eligibility:\nConditions:\n1. Annual income must be non-negative.\n2. Credit score must be between 300 and 850.\n3. Debt-to-income ratio must be non-negative.\nIf any input is invalid, the output will state 'Invalid input. Ensure all values are reasonable.'\nFormula:\nEligibility Criteria:\nCredit Score >= 700 and Debt-to-Income Ratio < 40%: Approved\nCredit Score >= 650 and Debt-to-Income Ratio < 45%: Conditional Approval\nOtherwise: Denied\nOutput\nEnter annual income: 50000\nEnter credit score: 720\nEnter debt-to-income ratio (%): 30\nLoan Eligibility: Approved.\nReason: Meets all criteria.",
+    "solution": "annual_income = float(input('Enter annual income: '))\ncredit_score = int(input('Enter credit score: '))\ndebt_to_income = float(input('Enter debt-to-income ratio (%): '))\nif annual_income < 0 or credit_score < 300 or credit_score > 850 or debt_to_income < 0:\n    print('Invalid input. Ensure all values are reasonable.')\nelif credit_score >= 700 and debt_to_income < 40:\n    eligibility = 'Approved'\n    reason = 'Meets all criteria.'\nelif credit_score >= 650 and debt_to_income < 45:\n    eligibility = 'Conditional Approval'\n    reason = 'Higher interest rate may apply.'\nelse:\n    eligibility = 'Denied'\n    reason = 'Does not meet eligibility criteria.'\nprint('Loan Eligibility:', eligibility)\nprint('Reason:', reason)",
+    "note": "Ensure that the loan eligibility assessment accurately reflects the criteria and provides clear feedback."
+},
+    {
+    "question": "Stage 20: Dynamic Expense Tracker and Savings Analyzer",
+    "correctOutput": "Input monthly income and detailed expenses to analyze savings potential:\nConditions:\n1. Monthly income, rent, groceries, utilities, and entertainment must be non-negative.\n2. If any input is negative, the output will state 'All inputs must be non-negative.'\nFormula:\nTotal Expenses = Rent + Groceries + Utilities + Entertainment\nRemaining Savings = Monthly Income - Total Expenses\nOutput\nEnter monthly income: 4000\nEnter rent: 1200\nEnter groceries: 300\nEnter utilities: 200\nEnter entertainment: 500\nTotal expenses: 2200\nRemaining savings: 1800.\nStatus: On track to meet savings goal.",
+    "solution": "monthly_income = float(input('Enter monthly income: '))\nrent = float(input('Enter rent: '))\ngroceries = float(input('Enter groceries: '))\nutilities = float(input('Enter utilities: '))\nentertainment = float(input('Enter entertainment: '))\ntotal_expenses = rent + groceries + utilities + entertainment\nif monthly_income < 0 or rent < 0 or groceries < 0 or utilities < 0 or entertainment < 0:\n    print('All inputs must be non-negative.')\nelif total_expenses > monthly_income:\n    status = 'Budget Overrun'\n    savings = 0\nelse:\n    savings = monthly_income - total_expenses\n    status = 'On track to meet savings goal'\nprint('Total expenses:', total_expenses)\nprint('Remaining savings:', savings)\nprint('Status:', status)",
+    "note": "Ensure the expense analysis correctly accounts for various categories and gives feedback on the budget status."
+}
+];
+
+
+
+        var currentStage = 0;
+        var timer;
+        var timeElapsed = 0;
+
+        function startTimer() {
+            timer = setInterval(function() {
+                timeElapsed++;
+                var minutes = Math.floor(timeElapsed / 60);
+                var seconds = timeElapsed % 60;
+                document.getElementById('timeDisplay').innerText = (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+            }, 1000);
+        }
+
+        function builtinRead(x) {
+            if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined) {
+                throw "File not found: '" + x + "'";
+            }
+            return Sk.builtinFiles["files"][x];
+        }
+
+        function input(promptText) {
+            var outputElement = document.getElementById('output');
+            return new Promise(function(resolve) {
+                var inputField = document.createElement('input');
+                inputField.setAttribute('type', 'text');
+                inputField.classList.add('console-input');
+                outputElement.appendChild(document.createTextNode(promptText));
+                outputElement.appendChild(inputField);
+
+                inputField.focus();
+
+                inputField.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        var userInput = inputField.value;
+                        outputElement.appendChild(document.createTextNode(userInput + '\n'));
+                        outputElement.removeChild(inputField);
+                        resolve(userInput);
+                    }
+                });
+            });
+        }
+
+        function runPythonCode() {
+            var outputElement = document.getElementById('output');
+            outputElement.innerHTML = '';
+            var code = editor.getValue();
+
+            Sk.configure({
+                output: function(text) {
+                    outputElement.appendChild(document.createTextNode(text));
+                },
+                read: builtinRead,
+                inputfun: input,
+                inputfunTakesPrompt: true
+            });
+
+            Sk.misceval.asyncToPromise(function() {
+                return Sk.importMainWithBody("<stdin>", false, code, true);
+            }).catch(function(err) {
+                outputElement.innerHTML = err.toString();
+            });
+
+            document.getElementById('note').innerText = stages[currentStage].note;
+        }
+
+        function showSolution() {
+            var solutionDiv = document.getElementById('solution');
+            solutionDiv.style.display = solutionDiv.style.display === 'block' ? 'none' : 'block';
+			var text =  stages[currentStage].solution;
+    // Replace newlines with <br> and spaces with &nbsp;
+			var formattedText = text.replace(/\n/g, "<br>").replace(/ /g, "&nbsp;");
+			document.getElementById("solution").innerHTML = formattedText;
+        }
+
+        function updateStage() {
+            document.getElementById('question').innerText = stages[currentStage].question;
+			document.getElementById('extend').innerText = stages[currentStage].correctOutput;
+            document.getElementById('note').innerText = '';
+            document.getElementById('solution').style.display = 'none';
+            editor.setValue('');
+            document.getElementById('output').innerText = '';
+        }
+
+        function nextStage() {
+            if (currentStage < stages.length - 1) {
+                currentStage++;
+                updateStage();
+            }
+        }
+
+        function previousStage() {
+            if (currentStage > 0) {
+                currentStage--;
+                updateStage();
+            }
+        }
+
+        function createStageList() {
+            var stageList = document.getElementById('stageList');
+            stages.forEach(function(stage, index) {
+                var listItem = document.createElement('li');
+                listItem.innerText = stage.question;
+                listItem.addEventListener('click', function() {
+                    currentStage = index;
+                    updateStage();
+                });
+                stageList.appendChild(listItem);
+            });
+        }
+
+        document.getElementById('runButton').addEventListener('click', runPythonCode);
+        document.getElementById('solutionButton').addEventListener('click', showSolution);
+        document.getElementById('nextButton').addEventListener('click', nextStage);
+        document.getElementById('previousButton').addEventListener('click', previousStage);
+
+        // Sidebar toggle
+        document.getElementById('toggleSidebar').addEventListener('click', function() {
+            var sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+        });
+
+        // Setup CodeMirror editor
+        var editor = CodeMirror.fromTextArea(document.getElementById('pythonCode'), {
+            mode: 'python',
+            lineNumbers: true,
+            autoCloseBrackets: true,
+            matchBrackets: true
+        });
+
+        updateStage();
+        startTimer();
+        createStageList();
+    </script>
+		
+</script>
+
+</body>
+</html>
 
